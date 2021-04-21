@@ -1,0 +1,395 @@
+<h1 class="mt-4">Welcome, <%=user.name%>
+</h1>
+<br>
+<div>
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Ticket Type
+        </button>
+        <% if (user.role!='Client' ) { %>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
+                data-whatever="@mdo">Create Ticket</button>
+            <% } %>
+                <% if (user.role=="Admin" ) { %>
+                    <a class="btn btn-primary" href="/users/register">Add
+                        User</a>
+                    <% } %>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" active href="/dashboard">All Ticket Types</a>
+                            <a class="dropdown-item" href="/dashboard/development">Development</a>
+                            <a class="dropdown-item" href="/dashboard/testing">Testing</a>
+                            <a class="dropdown-item" href="/dashboard/production">Production</a>
+                        </div>
+    </div>
+</div>
+
+<!-- START MODAL -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Ticket</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <%- include ('partials/messages.ejs') %>
+                    <form action="/add" method="POST">
+                        <div class="form-group">
+                            <label for="ticket_name">Ticket Name</label>
+                            <input type="ticket_name" id="ticket_name" name="ticket_name" class="form-control"
+                                placeholder="Enter Ticket Title" required
+                                oninvalid="this.setCustomValidity('Attention: Only alphanumeric characters allowed')"
+                                oninput="this.setCustomValidity('')" pattern="^[A-Za-z\s0-9]+$"
+                                value="<%= typeof ticket_name != 'undefined' ? ticket_name : '' %>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket_details">Ticket Details</label>
+                            <textarea class="form-control" id="ticket_details" name="ticket_details"
+                                value="<%= typeof ticket_details != 'undefined' ? ticket_details : '' %>" required
+                                placeholder="Add Ticket Details" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket_type">Ticket Type</label>
+                            <select class="custom-select" id="ticket_type" name="ticket_type" required="">
+                                <option selected="Development" value="Development">Development</option>
+                                <option value="Testing">Testing</option>
+                                <option value="Production">Production</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket_status">Ticket Status</label>
+                            <select disabled="" class="custom-select" id="ticket_status" name="ticket_status"
+                                required="">
+                                <option selected="Open" value="Open">Open</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket_priority">Ticket Priority</label>
+                            <select class="custom-select" id="ticket_priority" name="ticket_priority" required="">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option selected value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="assign_to">Assign To</label>
+                            <select class="custom-select" id="assign_to" name="assign_to" required="">
+                                <%users.forEach(users=> { %>
+                                    <% if (users.role=='Developer' ) { %>
+                                        <option value="<%=users.name%>">
+                                            <%=users.name%> |
+                                                <%=users.group%>
+                                        </option>
+                                        <% } %>
+                                            <% }); %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label hidden for="created_by">Created By</label>
+                            <input hidden type="created_by" id="created_by" name="created_by" class="form-control"
+                                value="<%=user.name%>" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Create Ticket</button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- END MODAL -->
+
+<div>
+    <br>
+    <br>
+    <button class="btn btn-outline-warning" type="button" data-toggle="collapse" data-target="#multiCollapseExample1"
+        aria-expanded="false" aria-controls="multiCollapseExample1">
+        Open Tickets
+    </button>
+    <button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#multiCollapseExample2"
+        aria-expanded="false" aria-controls="multiCollapseExample2">
+        Resolved Tickets
+    </button>
+    <button class="btn btn-outline-danger" type="button" data-toggle="collapse" data-target="#multiCollapseExample3"
+        aria-expanded="false" aria-controls="multiCollapseExample3">
+        Closed Tickets
+    </button>
+    <button class="btn btn-outline-dark" type="button" data-toggle="collapse" data-target=".multi-collapse"
+        aria-expanded="false" aria-controls="multiCollapseExample1 multiCollapseExample2 multiCollapseExample3">
+        All Tickets
+    </button>
+    <% if (user.role=='Developer' ) { %>
+        <button class="btn btn-light" type="button" data-toggle="collapse" data-target=".multi-collapse1"
+            aria-expanded="true" aria-controls="multiCollapseExample01 multiCollapseExample02 multiCollapseExample03">
+            Assigned to Me
+        </button>
+        <% } %>
+            </p>
+</div>
+<br />
+<div class="row">
+    <div class="col-4">
+        <div class="collapse multi-collapse show" id="multiCollapseExample1">
+            <h4>Open</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if (tickets.ticket_status=='Open' ) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="collapse multi-collapse show" id="multiCollapseExample2">
+            <h4>Resolved</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if (tickets.ticket_status=='Resolved' ) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="collapse multi-collapse show" id="multiCollapseExample3">
+            <h4>Closed</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if (tickets.ticket_status=='Closed' ) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+
+    <!-- Assigned to the user -->
+
+    <div class="col-4">
+        <div class="collapse multi-collapse1" id="multiCollapseExample02">
+            <h4>Open</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if ((tickets.ticket_status=='Open' ) && (tickets.assign_to==user.name)) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="collapse multi-collapse1" id="multiCollapseExample02">
+            <h4>Resolved</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if ((tickets.ticket_status=='Resolved' ) && (tickets.assign_to==user.name)) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="collapse multi-collapse1" id="multiCollapseExample02">
+            <h4>Closed</h4>
+            <%tickets.forEach(tickets=> { %>
+                <% if ((tickets.ticket_status=='Closed' ) && (tickets.assign_to==user.name)) { %>
+                    <div class="card card-body">
+                        <h6><b>Ticket No: </b>
+                            <%=tickets.ticket_no%>
+                        </h6>
+                        <div>
+                            <span class="badge badge-secondary">
+                                <%=tickets.assign_to%>
+                            </span>
+                            <span class="badge badge-primary">
+                                Priority: <%=tickets.ticket_priority%>
+                            </span>
+                            <span class="badge badge-danger">
+                                <%=tickets.ticket_type%>
+                            </span>
+                        </div>
+                        <div>
+                            <hr>
+                            <h5>
+                                <%=tickets.ticket_name%>
+                            </h5>
+                        </div>
+                        <div class="card-text">
+                            <a href="/edit/<%=tickets._id%>" class="card-link">View</a>
+                            <% if ((user.role!='Client' && tickets.user==user._id) || (user.role=='Admin' ||
+                                user.role=='Tester' )) { %>
+                                <a href="/delete/ticket/<%=tickets._id%>" type="button"
+                                    class="card-link text-danger">Delete
+                                    Ticket
+                                </a>
+                                <% } %>
+                        </div>
+                    </div>
+                    <br />
+                    <% } %>
+                        <% }); %>
+        </div>
+    </div>
+</div>

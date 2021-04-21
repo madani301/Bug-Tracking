@@ -1,0 +1,55 @@
+<div class="row mt-5">
+    <div class="col-md-6 m-auto">
+        <div class="card card-body">
+            <h1 class="text-center mb-3">
+                <i class="fa fa-calendar-alt fa-lg" aria-hidden="true"></i>
+                <br>
+                Create Ticket
+            </h1>
+            <%- include ('partials/messages.ejs') %>
+                <form action="/add" method="POST">
+                    <div class="form-group">
+                        <label for="ticket_name">Ticket Name</label>
+                        <input type="ticket_name" id="ticket_name" name="ticket_name" class="form-control"
+                            placeholder="Enter Ticket Title" required="" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket_details">Ticket Details</label>
+                        <textarea class="form-control" id="ticket_details" name="ticket_details" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket_status">Ticket Status</label>
+                        <select class="custom-select" id="ticket_status" name="ticket_status" required="">
+                            <option selected="Open" value="Open">Open</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket_priority">Ticket Priority</label>
+                        <select class="custom-select" id="ticket_priority" name="ticket_priority" required="">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option selected="High" value="High">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="assign_to">Assign To</label>
+                        <select class="custom-select" id="assign_to" name="assign_to" required="">
+                            <%user.forEach(user=> { %>
+                                <option>
+                                    <%=user%>
+                                </option>
+                                <% }); %>
+                        </select>
+                    </div>
+                    <fieldset>
+                        <br>
+                        <button class="btn btn-primary btn-block" type="submit">Create Ticket</button>
+                        <br>
+                        <a class="btn btn-secondary" href="/dashboard">Cancel</a>
+                    </fieldset>
+                </form>
+        </div>
+    </div>
+</div>
